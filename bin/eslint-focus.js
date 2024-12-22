@@ -72,7 +72,7 @@ async function* getTrackedFilesInDiff(dir, diffOptions) {
 }
 
 /**
- * @typedef {NonNullable<NonNullable<import('eslint').ESLint.Options['fixTypes']>[0]>} ESLintFixType
+ * @typedef {NonNullable<import('eslint').ESLint.Options['fixTypes']>[0]} ESLintFixType
  * @typedef {ESLintFixType | "add-disable-directive"} ESLintFocusFixType
  */
 
@@ -83,7 +83,7 @@ async function* getTrackedFilesInDiff(dir, diffOptions) {
  * @param {string[]} argv.relativeOrAbsolutePaths
  * @param {string} argv.ruleOrRulePattern
  * @param {boolean} argv.fix
- * @param {ESLintFocusFixType[]} argv.fixType
+ * @param {ESLintFocusFixType[] | undefined} argv.fixType
  */
 async function main(argv) {
 	const {
@@ -95,15 +95,15 @@ async function main(argv) {
 		ruleOrRulePattern,
 	} = argv;
 
-	const eslintFixTypes = fixType.filter(
-		/**
-		 * @param {ESLintFocusFixType} type
-		 * @returns {type is ESLintFixType}
-		 */
-		(type) => {
-			return type !== "add-disable-directive";
-		}
-	);
+	const eslintFixTypes = fixType
+		?.filter(
+			/**
+			 * @param {ESLintFocusFixType} type
+			 * @returns {type is ESLintFixType}
+			 */
+			(type) => type !== "add-disable-directive"
+		)
+		.filter(Boolean);
 
 	let consideredFilesTally = 0;
 	let checkedRulesTally = 0;
@@ -181,8 +181,11 @@ async function main(argv) {
 			allowInlineConfig,
 			baseConfig,
 			cwd: path.dirname(filePath),
-			fix: fix && eslintFixTypes.length > 0,
-			fixTypes: eslintFixTypes,
+			fix: fix,
+			fixTypes:
+				eslintFixTypes && eslintFixTypes.length > 0
+					? eslintFixTypes
+					: undefined,
 			useEslintrc: false,
 		});
 
@@ -195,7 +198,7 @@ async function main(argv) {
 
 			const [{ messages, output, source }] = results;
 
-			if (messages.length > 0 && fixType.includes("add-disable-directive")) {
+			if (messages.length > 0 && fixType?.includes("add-disable-directive")) {
 				// If ESLint fixed, we get `output`
 				// If it didn't fix, we get `source`
 				// We just want the code after linting
@@ -350,7 +353,7 @@ Yargs(hideBin(process.argv))
 						"Same as `eslint --fix-type` (https://eslint.org/docs/latest/use/command-line-interface#--fix-type) with an additional 'add-disable-directive' option to ignore the violation instead with an `eslint-disable-next-line` directive. " +
 						"'add-disable-directive' only adds `//` comments i.e. it will likely produce syntax errors if lint violations are found inside JSX.",
 					array: true,
-					default: [],
+					default: undefined,
 					type: "string",
 					choices: /** @type {const} */ ([
 						"problem",
@@ -373,7 +376,7 @@ Yargs(hideBin(process.argv))
 		"Run all Jest rules on every file inside the current directory."
 	)
 	.example(
-		"npx $0 react-hooks/exhaustive-deps . --fix --fix-type suggestion",
+		"npx $0 react-hooks/exhaustive-deps . --fix",
 		"Fixes all `react-hooks/exhaustive-deps` issues inside the current directory."
 	)
 	.example(

@@ -26,7 +26,7 @@ Options:
                        'add-disable-directive' option to ignore the violation instead with an `eslint-disable-next-line`
                        directive. 'add-disable-directive' only adds `//` comments i.e. it will likely produce syntax
                        errors if lint violations are found inside JSX.
-                             [array] [choices: "problem", "suggestion", "layout", "add-disable-directive"] [default: []]
+                             [array] [choices: "problem", "suggestion", "layout", "add-disable-directive"] [default: undefined]
 
 Examples:
   npx eslint-focus react-hooks/rules-of-hooks .                 Run `react-hooks/rules-of-hooks` on every file inside
@@ -34,7 +34,7 @@ Examples:
   npx $1 /jest\// .                                             Run all Jest rules on every file inside the current
                                                                 directory.
   npx eslint-focus react-hooks/exhaustive-deps . --fix          Fixes all `react-hooks/exhaustive-deps` issues inside
-  --fix-type suggestion                                         the current directory.
+                                                                the current directory.
   npx eslint-focus import/order packages/features/pf-*          (Relies on Bash globbing) Run `import/order` on every
                                                                 folder matching 'packages/features/pf-*'.
   npx eslint-focus import/order packages/core packages/traits   (Relies on Bash globbing) Run `import/order` on every
