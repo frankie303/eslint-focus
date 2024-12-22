@@ -181,7 +181,7 @@ async function main(argv) {
 			allowInlineConfig,
 			baseConfig,
 			cwd: path.dirname(filePath),
-			fix: fix,
+			fix,
 			fixTypes:
 				eslintFixTypes && eslintFixTypes.length > 0
 					? eslintFixTypes
